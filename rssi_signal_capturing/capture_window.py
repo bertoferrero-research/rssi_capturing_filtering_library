@@ -7,6 +7,32 @@ from scipy import stats
 
 class SignalCaptureWindow:
 
+    def __init__(self, sensor_mac_list: str, min_window_size: float, max_window_size: float, min_entries_per_sensor: int, min_valid_sensors: int, filter_method: str, invalid_sensor_value: int = 100):
+        """
+        Initialize a CaptureWindow object.
+
+        Args:
+            sensor_mac_list (str): A string containing the list of sensor MAC addresses.
+            min_window_size (float): The minimum size of the window in seconds.
+            max_window_size (float): The maximum size of the window in seconds.
+            min_entries_per_sensor (int): The minimum number of entries required for a valid sensor.
+            min_valid_sensors (int): The minimum number of valid sensors required for a valid window.
+            filter_method (str): The method used for filtering the window.
+            invalid_sensor_value (int, optional): The value used to represent invalid sensor readings. Defaults to 100.
+        """
+
+        # Assign properties
+        self._sensor_mac_list = sensor_mac_list
+        self._min_window_size = min_window_size
+        self._max_window_size = max_window_size
+        self._min_entries_per_sensor = min_entries_per_sensor
+        self._min_valid_sensors = min_valid_sensors
+        self._filter_method = filter_method
+        self._invalid_sensor_value = invalid_sensor_value
+
+        # Initialize buffer
+        self._readings_stack = []    
+
     def process_readings(self, readings: List[Dict[str, Any]], timestamp_head: str = "timestamp", mac_sensor_head: str = "mac_sensor", rssi_head: str = "rssi", aggregate_data_heads: list = [], reset_readings_stack: bool = False) -> List[Dict[str, Any]]:
             """
             Process a list of readings and return a list of fingerprints.
@@ -51,34 +77,6 @@ class SignalCaptureWindow:
                 self._readings_stack = []
 
             return fingerprints
-
-
-
-    def __init__(self, sensor_mac_list: str, min_window_size: float, max_window_size: float, min_entries_per_sensor: int, min_valid_sensors: int, filter_method: str, invalid_sensor_value: int = 100):
-        """
-        Initialize a CaptureWindow object.
-
-        Args:
-            sensor_mac_list (str): A string containing the list of sensor MAC addresses.
-            min_window_size (float): The minimum size of the window in seconds.
-            max_window_size (float): The maximum size of the window in seconds.
-            min_entries_per_sensor (int): The minimum number of entries required for a valid sensor.
-            min_valid_sensors (int): The minimum number of valid sensors required for a valid window.
-            filter_method (str): The method used for filtering the window.
-            invalid_sensor_value (int, optional): The value used to represent invalid sensor readings. Defaults to 100.
-        """
-
-        # Assign properties
-        self._sensor_mac_list = sensor_mac_list
-        self._min_window_size = min_window_size
-        self._max_window_size = max_window_size
-        self._min_entries_per_sensor = min_entries_per_sensor
-        self._min_valid_sensors = min_valid_sensors
-        self._filter_method = filter_method
-        self._invalid_sensor_value = invalid_sensor_value
-
-        # Initialize buffer
-        self._readings_stack = []
 
     def process_reading(self, timestamp: float, mac_sensor:str, rssi: int, aggregate_data: dict = None) -> Optional[dict]:
             """
