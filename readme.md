@@ -25,9 +25,10 @@ pip install capture-window @ git+https://github.com/bertoferrero-research/rssi_c
 
 ## Usage
 
-### Basic Example
-
 Here is how you can use the `SignalCaptureWindow` class to capture and filter RSSI signals:
+
+### Offline Fingerprinting Example - Processing Stored Readings
+
 
 ```python
 from capture_window import SignalCaptureWindow
@@ -79,6 +80,60 @@ fingerprint = window_capture.process_readings(
 print(fingerprint)
 ```
 
+### Online Fingerprinting Example - Processing Individual Readings in Real-Time
+
+```python
+from capture_window import SignalCaptureWindow
+
+# List of sensor MAC addresses
+mac_list = ['00:11:22:33:44:55', '66:77:88:99:AA:BB']
+
+# Window configuration settings
+window_configuration_settings_row = {
+    'parameters': {
+        'def_min_window_size': 5.0,  # Minimum window size in seconds
+        'def_max_window_size': 30.0,  # Maximum window size in seconds
+        'def_min_entries_per_sensor': 3,  # Minimum number of readings per sensor
+        'def_min_valid_sensors': 2,  # Minimum number of valid sensors
+        'def_invalid_sensor_value': 100,  # Value for invalid sensor readings
+        'def_sensor_filtering_tipe': 'mean'  # Filtering method (mean, median, mode, etc.)
+    }
+}
+
+# Initialize the capture window
+window_capture = SignalCaptureWindow(
+    sensor_mac_list=mac_list,
+    min_window_size=window_configuration_settings_row['parameters']['def_min_window_size'],
+    max_window_size=window_configuration_settings_row['parameters']['def_max_window_size'],
+    min_entries_per_sensor=window_configuration_settings_row['parameters']['def_min_entries_per_sensor'],
+    min_valid_sensors=window_configuration_settings_row['parameters']['def_min_valid_sensors'],
+    invalid_sensor_value=window_configuration_settings_row['parameters']['def_invalid_sensor_value'],
+    filter_method=window_configuration_settings_row['parameters']['def_sensor_filtering_tipe']
+)
+
+# Simulating real-time data reception
+live_readings = [
+    {'timestamp': 1, 'station_mac': '00:11:22:33:44:55', 'rssi': -65},
+    {'timestamp': 2, 'station_mac': '00:11:22:33:44:55', 'rssi': -70}
+    # Simulating more live readings...
+]
+
+# Process each reading as it is received
+for reading in live_readings:
+    # Process each individual reading and check if a valid fingerprint is generated
+    fingerprint = window_capture.process_reading(
+        timestamp=reading['timestamp'],
+        mac_sensor=reading['station_mac'],
+        rssi=reading['rssi']
+    )
+    
+    # If the fingerprint is valid, print it
+    if fingerprint is not None:
+        print(f"Fingerprint generated at timestamp {reading['timestamp']}: {fingerprint}")
+    else:
+        print(f"Reading at timestamp {reading['timestamp']} did not generate a valid fingerprint.")
+```
+
 ### Parameters of the Class `SignalCaptureWindow`
 
 - `sensor_mac_list`: List of sensor MAC addresses to be used.
@@ -95,8 +150,15 @@ print(fingerprint)
 - `timestamp_head`: The key for the timestamp value in each reading dictionary (default: `"timestamp"`).
 - `mac_sensor_head`: The key for the MAC address of the sensor in each reading (default: `"mac_sensor"`).
 - `rssi_head`: The key for the RSSI value in each reading (default: `"rssi"`).
-- `aggregate_data_heads`: A list of additional keys in the reading dictionaries that contain extra data (e.g., position or metadata).
+- `aggregate_data_heads`: A list of additional keys in the reading dictionaries that contain extra data (e.g., position or metadata) (default: `None`).
 - `reset_readings_stack`: A boolean flag that indicates whether to reset the readings stack before and after processing (default: `False`).
+
+### `process_reading` Method Parameters
+
+- `timestamp`: The timestamp of the reading, representing when the data was captured.
+- `mac_sensor`: The MAC address of the sensor from which the reading was received.
+- `rssi`: The RSSI (Received Signal Strength Indicator) value associated with the reading.
+- `aggregate_data` (`dict`, optional): Additional data that should be included in the fingerprint, such as position or metadata (default: `None`).
 
 ### Supported Filtering Methods
 
@@ -123,11 +185,5 @@ If you'd like to contribute to this project, please follow these steps:
 ## License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](./LICENSE) file for details.
-
-
-
-
-
-
 
 
