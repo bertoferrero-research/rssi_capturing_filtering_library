@@ -7,6 +7,53 @@ from scipy import stats
 
 class SignalCaptureWindow:
 
+    def process_readings(self, readings: List[Dict[str, Any]], timestamp_head: str = "timestamp", mac_sensor_head: str = "mac_sensor", rssi_head: str = "rssi", aggregate_data_heads: list = [], reset_readings_stack: bool = False) -> List[Dict[str, Any]]:
+            """
+            Process a list of readings and return a list of fingerprints.
+
+            Args:
+                readings (List[Dict[str, Any]]): A list of readings, where each reading is a dictionary.
+                timestamp_head (str, optional): The key for the timestamp value in each reading dictionary. Defaults to "timestamp".
+                mac_sensor_head (str, optional): The key for the mac_sensor value in each reading dictionary. Defaults to "mac_sensor".
+                rssi_head (str, optional): The key for the rssi value in each reading dictionary. Defaults to "rssi".
+                aggregate_data_heads (list, optional): A list of keys for additional aggregate data in each reading dictionary. Defaults to [].
+                reset_readings_stack (bool, optional): Whether to reset the readings stack. Defaults to False.
+
+            Returns:
+                List[Dict[str, Any]]: A list of fingerprints, where each fingerprint is a dictionary.
+            """
+            # Reset the stack if it is required
+            if reset_readings_stack:
+                self._readings_stack = []
+            
+            # Initialize the fingerprint
+            fingerprints = []
+
+            # Iterate over each reading
+            for reading in readings:
+
+                # Extract information from the reading
+                timestamp = reading[timestamp_head]
+                mac_sensor = reading[mac_sensor_head]
+                rssi = reading[rssi_head]
+                aggregate_data = None
+                if len(aggregate_data_heads) > 0:
+                    aggregate_data = {head: reading[head] for head in aggregate_data_heads}
+
+                # Process the individual read
+                fingerprint = self.process_reading(timestamp=timestamp, mac_sensor=mac_sensor, rssi=rssi, aggregate_data=aggregate_data)
+                if fingerprint is not None:
+                    fingerprints.append(fingerprint)
+
+            
+            # Reset the stack again if it is required
+            if reset_readings_stack:
+                self._readings_stack = []
+
+            return fingerprints
+
+
+
     def __init__(self, sensor_mac_list: str, min_window_size: float, max_window_size: float, min_entries_per_sensor: int, min_valid_sensors: int, filter_method: str, invalid_sensor_value: int = 100):
         """
         Initialize a CaptureWindow object.
@@ -141,52 +188,7 @@ class SignalCaptureWindow:
 
         return fingerprint
     
-    def process_readings(self, readings: List[Dict[str, Any]], timestamp_head: str = "timestamp", mac_sensor_head: str = "mac_sensor", rssi_head: str = "rssi", aggregate_data_heads: list = [], reset_readings_stack: bool = False) -> List[Dict[str, Any]]:
-            """
-            Process a list of readings and return a list of fingerprints.
-
-            Args:
-                readings (List[Dict[str, Any]]): A list of readings, where each reading is a dictionary.
-                timestamp_head (str, optional): The key for the timestamp value in each reading dictionary. Defaults to "timestamp".
-                mac_sensor_head (str, optional): The key for the mac_sensor value in each reading dictionary. Defaults to "mac_sensor".
-                rssi_head (str, optional): The key for the rssi value in each reading dictionary. Defaults to "rssi".
-                aggregate_data_heads (list, optional): A list of keys for additional aggregate data in each reading dictionary. Defaults to [].
-                reset_readings_stack (bool, optional): Whether to reset the readings stack. Defaults to False.
-
-            Returns:
-                List[Dict[str, Any]]: A list of fingerprints, where each fingerprint is a dictionary.
-            """
-            # Reset the stack if it is required
-            if reset_readings_stack:
-                self._readings_stack = []
-            
-            # Initialize the fingerprint
-            fingerprints = []
-
-            # Iterate over each reading
-            for reading in readings:
-
-                # Extract information from the reading
-                timestamp = reading[timestamp_head]
-                mac_sensor = reading[mac_sensor_head]
-                rssi = reading[rssi_head]
-                aggregate_data = None
-                if len(aggregate_data_heads) > 0:
-                    aggregate_data = {head: reading[head] for head in aggregate_data_heads}
-
-                # Process the individual read
-                fingerprint = self.process_reading(timestamp=timestamp, mac_sensor=mac_sensor, rssi=rssi, aggregate_data=aggregate_data)
-                if fingerprint is not None:
-                    fingerprints.append(fingerprint)
-
-            
-            # Reset the stack again if it is required
-            if reset_readings_stack:
-                self._readings_stack = []
-
-            return fingerprints
-
-
+    
 
 
 
