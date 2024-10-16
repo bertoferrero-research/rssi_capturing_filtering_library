@@ -123,9 +123,9 @@ class SignalCaptureWindow:
                 return None
             
             # Compose the fingerprint getting first a copy from the stack and cleaning it
-            readings_stack = list(self._readings_stack)
+            readings_df = pd.DataFrame(self._readings_stack)
             self._readings_stack = []
-            fingerprint = self.compose_fingerprint_data(readings_stack=readings_stack)
+            fingerprint = self.compose_fingerprint_data(readings_stack=readings_df)
 
             #Aggregate the timestamp
             fingerprint['timestamp'] = timestamp
@@ -157,7 +157,7 @@ class SignalCaptureWindow:
         valid_sensors = sensor_counts[sensor_counts >= self._min_entries_per_sensor].count()
         return valid_sensors >= self._min_valid_sensors
     
-    def compose_fingerprint_data(self, readings_stack: list) -> dict:
+    def compose_fingerprint_data(self, readings_stack: pd.DataFrame) -> dict:
         """
         Composes the fingerprint data based on the sensor readings and the specified filter method.
 
@@ -168,11 +168,10 @@ class SignalCaptureWindow:
         Raises:
             Exception: If an invalid filtering type is specified.
         """
-        readings_df = pd.DataFrame(readings_stack)
         fingerprint = {}
         for sensor_mac in self._sensor_mac_list:
             # Get the sensor readings
-            sensor_readings = readings_df[readings_df['mac_sensor'] == sensor_mac]['rssi']
+            sensor_readings = readings_stack[readings_stack['mac_sensor'] == sensor_mac]['rssi']
             # Check if the sensor is valid
             if len(sensor_readings) >= self._min_entries_per_sensor:
                 # If it's valid, apply the filter
