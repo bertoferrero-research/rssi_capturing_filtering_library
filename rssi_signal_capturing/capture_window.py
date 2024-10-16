@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 from scipy import stats
+import pandas as pd
 
 
 class SignalCaptureWindow:
@@ -115,8 +116,7 @@ class SignalCaptureWindow:
             self._readings_stack.append(reading_row)
 
             # Remove old readings
-            while len(self._readings_stack) > 0 and timestamp - self._readings_stack[0]['timestamp'] > self._max_window_size:
-                self._readings_stack.pop(0)
+            self._readings_stack = [row for row in self._readings_stack if timestamp - row['timestamp'] <= self._max_window_size]
 
             # Check if the capture window is valid
             if not self.check_valid_window(timestamp=timestamp):
@@ -146,21 +146,16 @@ class SignalCaptureWindow:
         Returns:
             bool: True if the window is valid, False otherwise.
         """
+        
         # check minimal length
         if not (len(self._readings_stack) > 0 and timestamp - self._readings_stack[0]['timestamp'] >= self._min_window_size):
             return False
 
         # Check how many valid sensors are in the pool. To do this, we need to count how many sensors have at least x entries (according to the configuration)
-        valid_sensors = 0
-        for sensor_mac in self._sensor_mac_list:
-            if len(list(filter(lambda x: x['mac_sensor'] == sensor_mac, self._readings_stack))) >= self._min_entries_per_sensor:
-                valid_sensors += 1
-        # If there are not enough valid sensors, continue
-        if valid_sensors < self._min_valid_sensors:
-            return False
-
-        # All covered
-        return True
+        readings_df = pd.DataFrame(self._readings_stack)
+        sensor_counts = readings_df.groupby('mac_sensor').size()
+        valid_sensors = sensor_counts[sensor_counts >= self._min_entries_per_sensor].count()
+        return valid_sensors >= self._min_valid_sensors
     
     def compose_fingerprint_data(self, readings_stack: list) -> dict:
         """
@@ -173,25 +168,26 @@ class SignalCaptureWindow:
         Raises:
             Exception: If an invalid filtering type is specified.
         """
+        readings_df = pd.DataFrame(readings_stack)
         fingerprint = {}
         for sensor_mac in self._sensor_mac_list:
             # Get the sensor readings
-            sensor_readings = list(filter(lambda x: x['mac_sensor'] == sensor_mac, readings_stack))
+            sensor_readings = readings_df[readings_df['mac_sensor'] == sensor_mac]['rssi']
             # Check if the sensor is valid
             if len(sensor_readings) >= self._min_entries_per_sensor:
                 # If it's valid, apply the filter
                 if self._filter_method == 'mean':
-                    fingerprint[sensor_mac] = math.floor(np.mean(list(map(lambda x: x['rssi'], sensor_readings))))
+                    fingerprint[sensor_mac] = math.floor(sensor_readings.mean())
                 elif self._filter_method == 'median':
-                    fingerprint[sensor_mac] = math.floor(np.median(list(map(lambda x: x['rssi'], sensor_readings))))
+                    fingerprint[sensor_mac] = math.floor(sensor_readings.median())
                 elif self._filter_method == 'mode':
-                    fingerprint[sensor_mac] = math.floor(stats.mode(list(map(lambda x: x['rssi'], sensor_readings)))[0])
+                    fingerprint[sensor_mac] = math.floor(stats.mode(sensor_readings)[0][0])
                 elif self._filter_method == 'max':
-                    fingerprint[sensor_mac] = math.floor(np.max(list(map(lambda x: x['rssi'], sensor_readings))))
+                    fingerprint[sensor_mac] = math.floor(sensor_readings.max())
                 elif self._filter_method == 'min':
-                    fingerprint[sensor_mac] = math.floor(np.min(list(map(lambda x: x['rssi'], sensor_readings))))
+                    fingerprint[sensor_mac] = math.floor(sensor_readings.min())
                 elif self._filter_method == 'tss':
-                    fingerprint[sensor_mac] = np.sum(list(map(lambda x: 10**(x['rssi']/10), sensor_readings)))
+                    fingerprint[sensor_mac] = np.sum(10**(sensor_readings / 10))
                 else:
                     raise Exception('Invalid filtering type')
             else:
