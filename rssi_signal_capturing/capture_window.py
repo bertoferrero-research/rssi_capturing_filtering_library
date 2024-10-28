@@ -47,6 +47,14 @@ class SignalCaptureWindow:
         # Initialize buffer
         self._readings_stack = []    
 
+    def clear_readings_stack(self):
+        """
+        Clears the readings stack.
+
+        This method resets the internal readings stack to an empty list.
+        """
+        self._readings_stack = []
+
     def process_readings(self, readings: List[Dict[str, Any]], timestamp_head: str = "timestamp", mac_sensor_head: str = "mac_sensor", rssi_head: str = "rssi", aggregate_data_heads: list = [], reset_readings_stack: bool = False) -> List[Dict[str, Any]]:
             """
             Process a list of readings and return a list of fingerprints.
@@ -64,7 +72,7 @@ class SignalCaptureWindow:
             """
             # Reset the stack if it is required
             if reset_readings_stack:
-                self._readings_stack = []
+                self.clear_readings_stack()
             
             # Initialize the fingerprint
             fingerprints = []
@@ -88,7 +96,7 @@ class SignalCaptureWindow:
             
             # Reset the stack again if it is required
             if reset_readings_stack:
-                self._readings_stack = []
+                self.clear_readings_stack()
 
             return fingerprints
 
