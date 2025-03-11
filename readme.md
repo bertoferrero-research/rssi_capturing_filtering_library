@@ -9,8 +9,8 @@ This library has been utilized in research for a PhD at the University of Alican
 This code is employed in our research projects. Please, cite one or both the following works for any use of the library or for a reference to the pusblished work:
 
 ```bibtex
-@article{ferrero_ble_neural_network_positioning,
-  author = {Ferrero-Lopez, Alberto y Gallego, Antonio Javier y Lozano, Miguel Angel},
+@article{FerreroLopez2025ipsNetwork,
+  author = {Ferrero-Lopez, Alberto and Gallego, Antonio Javier and Lozano, Miguel Angel},
   title = {Bluetooth Low Energy Indoor Positioning: A Fingerprinting Neural Network Approach},
   journal = {Internet Of Things},
   year = {2025}
@@ -18,11 +18,13 @@ This code is employed in our research projects. Please, cite one or both the fol
 ```
 
 ```bibtex
-@inproceedings{ferrero_indoor_positioning_simulator,
+@inproceedings{FerreroLopez2025simulator,
   author = {Ferrero-Lopez, Alberto and Gallego, Antonio Javier and Lozano, Miguel Angel},
-  title = {Proceedings of the 2025 International conference on Advanced Machine Learning and Data Science (AMLDS 2025), Tokyo, Japan, July 19-21},
-  year = {2025},
-  booktitle = {Proceedings of the Indoor Positioning Conference}
+  title = {Synthetic Data for Indoor Positioning Systems: Reducing Offline Collection Costs},
+  booktitle = {Proceedings of the 2025 International Conference on Advanced Machine Learning and Data Science (AMLDS)},
+  location = {Tokyo, Japan},
+  month = {July 19--21},
+  year = {2025}
 }
 ```
 
