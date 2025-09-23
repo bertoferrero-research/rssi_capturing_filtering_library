@@ -1,4 +1,4 @@
-# Capture Window
+# Fingerprint Capture Window
 
 `capture_window` is a Python library designed for capturing and filtering RSSI signals. It is optimized for processing sensor readings, filtering them using various methods, and generating fingerprint datasets useful for signal analysis.
 
