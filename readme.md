@@ -6,7 +6,7 @@ This library has been utilized in research for a PhD at the University of Alican
 
 ## Citation
 
-This code is employed in our research projects. Please, cite one or both the following works for any use of the library or for a reference to the pusblished work:
+This code is employed in our research projects. Please, cite the following work for any use of the library or for a reference to the pusblished work:
 
 ```bibtex
 @article{FerreroLopez2025ipsNetwork,
@@ -16,20 +16,6 @@ This code is employed in our research projects. Please, cite one or both the fol
   year = {2025},
   pages = {101565},
   doi = {10.1016/j.iot.2025.101565}
-}
-```
-
-```bibtex
-@inproceedings{FerreroLopez2025simulator,
-  author={Ferrero-López, Alberto and Lozano, Miguel Angel and Gallego, Antonio Javier},
-  booktitle={2025 International Conference on Advanced Machine Learning and Data Science (AMLDS)}, 
-  title={Synthetic Data for Indoor Positioning Systems: Reducing Offline Collection Costs}, 
-  year={2025},
-  volume={},
-  number={},
-  pages={236-241},
-  keywords={Training;Costs;Accuracy;Fingerprint recognition;Data collection;Noise measurement;Received signal strength indicator;IP networks;Indoor positioning systems;Synthetic data;Indoor Positioning;Fingerprint;Synthetic Data Generation},
-  doi={10.1109/AMLDS63918.2025.11159389}
 }
 ```
 
